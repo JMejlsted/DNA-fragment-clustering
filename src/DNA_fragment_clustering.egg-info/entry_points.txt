@@ -1,0 +1,2 @@
+[console_scripts]
+dna-grouper = dna_fragment_grouper.cli:main
