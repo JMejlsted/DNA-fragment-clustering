@@ -12,8 +12,10 @@ This python package contains the code responsible for clustering small DNA fragm
 ## Python Usage
 
 `from DNA_fragment_clustering import DNA_clustering`
+
 `DNA_clustering("input.csv", aggressive = False)`
 
+If `aggressive = True` is used, the algorithm will combine single sequences to achieve a higher level of compression, but this may saccrifice synthesizeability due to sequence similarity.
 
 ## Clustering of _de novo_ DNA fragments
 
@@ -26,8 +28,8 @@ The Python executable [DNA_fragments.py](DNA_fragments.py) performs clustering a
 ### Input format
 
 The input .csv files were based on the output format of Benchling.  
-The format uses three columns: **Name**, **Author**, **Sequence**
-These are the name of the DNA fragment, the author/owner of the DNA sequences, and sequence in question, respectively. 
+The format requires two columns: **Name**, **Sequence**
+These are the name of the DNA fragment, and sequence in question, respectively. All other columns will be ignored
 
 
 ## Citation
