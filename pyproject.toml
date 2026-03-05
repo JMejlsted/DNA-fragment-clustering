@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "DNA-fragment-clustering"
-version = "0.1.3"
+version = "0.1.4"
 description = "DNA fragment clustering and grouping tool"
 authors = [
     {name = "Jacob Mejlsted"}
@@ -21,6 +21,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/Self-Organizing-Systems-TU-Darmstadt/CTK-ColiToolKit"
+Homepage = "https://github.com/JMejlsted/DNA-fragment-clustering"
 
 [project.scripts]
 dna-grouper = "dna_fragment_grouper.cli:main"
