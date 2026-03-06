@@ -1,3 +1,4 @@
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
@@ -21,7 +22,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/Self-Organizing-Systems-TU-Darmstadt/CTK-ColiToolKit"
-Homepage = "https://github.com/JMejlsted/DNA-fragment-clustering"
+Source_code = "https://github.com/JMejlsted/DNA-fragment-clustering"
 
 [project.scripts]
 dna-grouper = "dna_fragment_grouper.cli:main"

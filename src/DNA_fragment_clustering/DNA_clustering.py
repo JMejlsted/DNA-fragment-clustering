@@ -77,7 +77,6 @@ def DNA_clustering(
     # add back large fragments
     max_group = grouped["Group"].max() if not grouped.empty else 0
     for _, row in df_large.iterrows():
-        name, author, frag = row
         max_group += 1
         grouped = pd.concat(
             [
@@ -85,9 +84,9 @@ def DNA_clustering(
                 pd.DataFrame(
                     {
                         "Group": [max_group],
-                        "Sequence": [frag],
-                        "Name": [[name]],
-                        "Length": [len(frag)],
+                        "Sequence": row["Sequence"],
+                        "Name": row["Name"],
+                        "Length": [len(row["Sequence"])],
                     }
                 ),
             ],
@@ -111,4 +110,78 @@ def DNA_clustering(
 
     if progress:
         progress(100)
+    return out_path
+
+
+
+# Step 0: Defining the overhangs and types
+
+start_constant = "gcatcgtctcatcggtctca"
+end_constant = "tgagacctgagacggcat"
+
+overhangs = pd.DataFrame(
+    np.array([
+    ["1", "CCCT", "AACG"],
+    ["2", "AACG", "TATG"],
+    ["2a", "AACG", "AAAC"],
+    ["2b", "AAAC", "CTGA"],
+    ["2ab", "AACG", "CTGA"],
+    ["2c", "CTGA", "AAGA"],
+    ["2d", "AAGA", "TATG"],
+    ["2cd", "CTGA", "TATG"],
+    ["2cd34", "CTGA", "GCTG"],
+    ["3", "T", "GGATCC"],         # The YTK framework uses the ATG start-codon as part of the overhang. It is therefore not extra added here
+    ["3a", "T", "GGTTCT"],        # The YTK framework uses the ATG start-codon as part of the overhang. It is therefore not extra added here
+    ["3b", "TTCT", "GGATCC"],     # An extra GG is added before the 3' site, per the YTK framework
+    ["4", "ATCC", "GCTG"],
+    ["4a", "ATCC", "TGGC"],
+    ["4b", "TGGC", "GCTG"],
+    ["5", "GCTG", "TACA"],
+    ["6", "TACA", "GAGT"],
+    ["7", "GAGT", "CCGA"],
+    ["8", "CCGA", "CCCT"],
+    ["8a", "CCGA", "CAAT"],
+    ["8b", "CAAT", "CCCT"],
+    ["678", "TACA", "CCCT"]]),
+    columns=["Type", "5' overhang", "3' overhang"])
+
+
+
+def DNA_typer(csv_path):
+    
+    # Step 1: Load the .csv file
+        
+    # Determine if .csv uses , or ; as separator
+    with open(csv_path, newline='') as csvfile:
+        dialect = csv.Sniffer().sniff(csvfile.read())
+    
+    if dialect.delimiter == ',':
+        df = pd.read_csv(csv_path)            # Import the csv with a comma as the separator
+    elif dialect.delimiter == ';':
+        df = pd.read_csv(csv_path, sep=';')   # Import the csv with a semicolon as the separator
+    
+    
+    # Step 2: Adding the new overhangs
+    for index, row in df.iterrows():
+        # We start by extrancting the overhangs for the type as strings
+        five_overhang  = overhangs[overhangs['Type'] == row['Type']]["5' overhang"].astype(str).values.flatten()[0]
+        three_overhang = overhangs[overhangs['Type'] == row['Type']]["3' overhang"].astype(str).values.flatten()[0]
+    
+        # The new sequence can then be constructed before it is saved
+        new_sequence = start_constant + five_overhang + row['Sequence'] + three_overhang + end_constant
+        df.loc[index, "New_seq"] = new_sequence
+    
+    # We can now rename the old sequence to "Part_sequence" and "New_seq" to "Sequence", as we will need that later
+    typed_df = df.rename({'Sequence': 'Part_sequence', 'New_seq': 'Sequence'}, axis='columns')
+    
+    
+    # Step 3: Save the outputs
+    out_path = Path(csv_path).with_name(Path(csv_path).stem + "_typed.csv")
+        
+    # Output file will have either ; or , depending on the input
+    if dialect.delimiter == ',':
+        typed_df.to_csv(out_path, index=False, sep=",")
+    elif dialect.delimiter == ';':
+        typed_df.to_csv(out_path, index=False, sep=";")
+
     return out_path
